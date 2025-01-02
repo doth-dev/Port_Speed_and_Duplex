@@ -15,16 +15,19 @@ https://github.com/extremetme/XMC-LudoLib/
 
 Version 1.0 : initial release of script
 '''
+
 ##########################################################
 # XMC Script: Port_Speed_and_Duplex                      #
 # Written by Olivier Martin, doth.fr                     #
 ##########################################################
-#
-# Configuration :
-# Runtime Settings/Scripts comments = doth.fr - Activate/Deactivate auto-negotiation on port and change port speed and duplex. Need cli.py and base.py
-# Permissions and menus/Category = Config
-# Permissions and menus/Menus = Device, Multi-device, Port
 
+# Configuration :
+# Runtime settings/Script Comments : doth.fr - Activate/Deactivate auto-negotiation on port and change port speed and duplex. Need cli.py and base.py
+# Permissions and menus/Category = Config
+# Permissions and menus/Menu = Device, Multi-device, Port
+
+
+# Global variable
 __version__ = '1.0'
 
 '''
@@ -82,10 +85,11 @@ Debug = False    # Enables debug messages
 Sanity = False   # If enabled, config commands are not sent to host (show commands are operational)
 
 # Import Ludovico's scripts
-pathToScripts = "/usr/local/Extreme_Networks/NetSight/appdata/scripting/overrides"
-execfile(pathToScripts+"/cli.py")
-execfile(pathToScripts+"/base.py")
-
+pathToScripts = \"/usr/local/Extreme_Networks/NetSight/appdata/scripting/overrides\"
+execfile(pathToScripts+\"/cli.py\")
+execfile(pathToScripts+\"/base.py\")
+execfile(pathToScripts+\"/cliDict.py\")
+execfile(pathToScripts+\"/family.py\")
 
 #
 # MAIN:
@@ -112,44 +116,66 @@ def main():
         pass
 
     # Set default value
-    portSpeed = "10"
-    portDuplex = "half"
+    portSpeed = \"10\"
+    portDuplex = \"half\"
 
     # Write Version of script and server
-    print "{} version {} on XIQ-SE/XMC version {}".format(scriptName(), __version__, emc_vars["serverVersion"])
+    print \"{} version {} on XIQ-SE/XMC version {}\".format(scriptName(), __version__, emc_vars[\"serverVersion\"])
 
     # Activate autonegotiation
     if emc_vars['userInput_autoneg'].lower() == 'enabled':
-        for port in emc_vars["port"].split(','):
-            print "Configuring port "+port
-            configCmds = '''
-enable;
-configure terminal;
-interface gigabit {};
-auto-negotiate port {} enable;
-'''.format(port,port)
-            sendCLI_configChain(configCmds)
+        for port in emc_vars[\"port\"].split(','):
+            print \"Configuring port \"+port
+            # Obtain Info on switch and from XMC
+            setFamily(CLI_Dict)  # Sets global Family variable
+            # Disable more paging
+            sendCLI_showCommand(CLI_Dict[Family]['disable_more_paging'])
+            # Enter privExec
+            sendCLI_showCommand(CLI_Dict[Family]['enable_context'])
+            # Enter Config context
+            sendCLI_configCommand(CLI_Dict[Family]['config_context'])
+            # Enter Interface context
+            sendCLI_configCommand(CLI_Dict[Family]['port_config_context'].format(port))
+            # Enable auto-negotiate
+            sendCLI_configCommand("auto-negotiate port {} enable".format(port))
+            # Exit & Save config
+            sendCLI_configChain(CLI_Dict[Family]['end_save_config'])
+
+            # Print summary of config performed
+            printConfigSummary()
     else:
-        for port in emc_vars["port"].split(','):
-            print "Configuring port "+port
+        for port in emc_vars[\"port\"].split(','):
+            print \"Configuring port \"+port
             # Set values
             if emc_vars['userInput_speed']:
                 portSpeed = emc_vars['userInput_speed']
-            print "Set speed to " + portSpeed
+            print \"Set speed to \" + portSpeed
             if emc_vars['userInput_duplex']:
                 portDuplex= emc_vars['userInput_duplex']
-            print "Set duplex to " + portDuplex
+            print \"Set duplex to \" + portDuplex
 
-            configCmds = '''
-enable;
-configure terminal;
-interface gigabit {};
-no auto-negotiate port {} enable;
-speed {};
-duplex {};
-'''.format(port,port, portSpeed, portDuplex)
-            sendCLI_configChain(configCmds)
+            # Obtain Info on switch and from XMC
+            setFamily(CLI_Dict)  # Sets global Family variable
+            # Disable more paging
+            sendCLI_showCommand(CLI_Dict[Family]['disable_more_paging'])
+            # Enter privExec
+            sendCLI_showCommand(CLI_Dict[Family]['enable_context'])
+            # Enter Config context
+            sendCLI_configCommand(CLI_Dict[Family]['config_context'])
+            # Enter Interface context
+            sendCLI_configCommand(CLI_Dict[Family]['port_config_context'].format(port))
+            # Disable auto-negotiate
+            sendCLI_configCommand("no auto-negotiate port {} enable".format(port))
+            # Set speed
+            sendCLI_configCommand("speed {}".format(portSpeed))
+            # Set duplex
+            sendCLI_configCommand("duplex {}".format(portDuplex))
+            # Exit & Save config
+            sendCLI_configChain(CLI_Dict[Family]['end_save_config'])
 
-    print ("End of script")
+            # Print summary of config performed
+            printConfigSummary()
+
+    print (\"End of script\")
 
 main()
