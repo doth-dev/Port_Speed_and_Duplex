@@ -13,7 +13,7 @@ SCRIPTS.
 Using Ludovico Steven XMC-Lib :
 https://github.com/extremetme/XMC-LudoLib/
 
-Version 1.0 : inititial release of script
+Version 1.0 : initial release of script
 '''
 
 #
