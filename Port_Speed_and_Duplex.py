@@ -15,13 +15,15 @@ https://github.com/extremetme/XMC-LudoLib/
 
 Version 1.0 : initial release of script
 '''
-
-#
-
 ##########################################################
 # XMC Script: Port_Speed_and_Duplex                      #
 # Written by Olivier Martin, doth.fr                     #
 ##########################################################
+#
+# Configuration :
+# Runtime Settings/Scripts comments = doth.fr - Activate/Deactivate auto-negotiation on port and change port speed and duplex. Need cli.py and base.py
+# Permissions and menus/Category = Config
+# Permissions and menus/Menus = Device, Multi-device, Port
 
 __version__ = '1.0'
 
