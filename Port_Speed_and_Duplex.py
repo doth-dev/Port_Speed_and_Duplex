@@ -34,7 +34,7 @@ __version__ = '1.0'
 #@DetailDescriptionEnd
 #@SectionStart (description = \"Auto negotiation\")
 #    @VariableFieldLabel (
-#        description = \"Auto negotiation: set port autoi-negotiation state\",
+#        description = \"Auto negotiation: set port auto-negotiation state\",
 #        type = string,
 #        required = yes,
 #        validValues = [Enabled, Disabled],
