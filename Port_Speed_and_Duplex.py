@@ -85,7 +85,8 @@ Debug = False    # Enables debug messages
 Sanity = False   # If enabled, config commands are not sent to host (show commands are operational)
 
 # Import Ludovico's scripts
-pathToScripts = \"/usr/local/Extreme_Networks/NetSight/appdata/scripting/overrides\"
+# As they are created in XIQ-SE as imported script, they are stored in the same directory that our script
+pathToScripts = emc_vars["javax.script.filename"].rpartition('/')[0]
 execfile(pathToScripts+\"/cli.py\")
 execfile(pathToScripts+\"/base.py\")
 execfile(pathToScripts+\"/cliDict.py\")
